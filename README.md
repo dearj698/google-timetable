@@ -1,5 +1,5 @@
 # this is a program that helps student from these universities: UWO ,University of MCmaster
-to plot their time table through running  python 
+to search for courses
 
 what you can do thou further with this :
 
