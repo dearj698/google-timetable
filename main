@@ -1,0 +1,87 @@
+from selenium import webdriver
+# 引入Keys类包 发起键盘操作
+from selenium.webdriver.common.keys import Keys
+import time
+from selenium.webdriver.common.action_chains import ActionChains
+from bs4 import BeautifulSoup
+import sys
+import io
+import urllib.request
+import http.cookiejar
+#
+# option = webdriver.ChromeOptions()
+# option.add_argument("headless")
+# driver = webdriver.Chrome(chrome_options=option)
+driver=webdriver.Chrome()
+# 访问学生中心
+driver.get('https://student.uwo.ca/psc/heprdweb/EMPLOYEE/HRMS/s/WEBLIB_WSA.ISCRIPT1.FieldFormula.IScript_eLetter')
+# 输入框输入内容
+print('welcome , we are openning student centre')
+time.sleep(3)
+userid=input('please enter your user id here: ')
+pwd=input('please enter your user password here: ')
+print('logging in......')
+driver.find_element_by_id('userid').send_keys(userid)
+driver.find_element_by_id('pwd').send_keys(pwd)
+time.sleep(3)
+print('logged in successfully! ')
+time.sleep(5)
+print('loading student centre')
+driver.find_element_by_class_name('PSPUSHBUTTON').send_keys(Keys.ENTER)
+time.sleep(3)
+print('initiating the enrolling system')
+driver.find_element_by_id('WSA_SS_ACA_L0_W_WSA_ENROLL_LNK').send_keys(Keys.ENTER)
+
+time.sleep(5)
+# 定位到要右击的元素
+
+ActionChains(driver).click(driver.find_element_by_id('SSR_DUMMY_RECV1$sels$1$$0')).perform()
+print('selecting the term specified')
+time.sleep(6)
+driver.find_element_by_id('DERIVED_SSS_SCT_SSR_PB_GO').send_keys(Keys.ENTER)
+time.sleep(5)
+ActionChains(driver).click(driver.find_element_by_id('DERIVED_REGFRM1_SSR_PB_SRCH$145$')).perform()
+time.sleep(5)
+courseNum=input('please enter the course number here(e.g. for cs1026 , enter 1026): ')
+driver.find_element_by_name('CLASS_SRCH_WRK2_CATALOG_NBR$8$').send_keys(courseNum)
+
+driver.find_element_by_name('CLASS_SRCH_WRK2_SSR_PB_CLASS_SRCH').send_keys(Keys.ENTER)
+list=[]
+list2=[]
+time.sleep(6)
+list=driver.find_elements_by_class_name('SSSHYPERLINKBOLD')
+num=0
+for i in list:
+    list2.append(i.text)
+    print(str(num)+".  "+i.text)
+    num=num+1
+selection=input("please enter the idex above: ")
+ActionChains(driver).click(driver.find_element_by_name('DERIVED_CLSRCH_SSR_EXPAND_COLLAP2$182$$IMG$'+selection)).perform()
+
+print("we are searching for available courses!")
+time.sleep(5)
+status=[]
+num=[]
+status=driver.find_elements_by_class_name("SSSIMAGECENTER")
+for i in driver.find_elements_by_class_name("PSLONGEDITBOX"):
+        id=str(i.get_attribute("id")).strip("MTG_")
+        type=id.split("$")[0]
+        index=id.split("$")[1]
+        if "DERIVED" in type or "Your course enrollment worksheet is empty" in i.text or type=='':
+            continue
+
+        else:
+            print(type+index+"  "+i.text)
+            num.append(int(index))
+while(True):
+    select=int(input("please select an option from"+"1--"+str(len(status))+": "))
+    selection=num[select-1]
+    print("the status for the section you choose: "+str(status[select-1].get_attribute("alt")))
+    status=input("do you want to check other session?（Y/N）")
+    if status=="Y":
+        continue
+    elif status == "N":
+        break
+
+
+
